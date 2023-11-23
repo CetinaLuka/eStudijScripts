@@ -1,2 +1,2 @@
 # eStudijScripts
-Skripte, ki malo olajšajo uporabo eŠtudija.
+Tampermonkey skripte, ki malo olajšajo uporabo eŠtudija.
