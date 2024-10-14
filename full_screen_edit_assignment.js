@@ -9,10 +9,8 @@
 // @grant        none
 // ==/UserScript==
 /* jshint -W097 */
-
 'use strict';
 /* global $ */
-
 
 $(() => {
     //ustvari se gumb za fullscreen
@@ -29,8 +27,7 @@ $(() => {
         toggleFullScreen();
     });
 
-    if (document.addEventListener)
-    {
+    if (document.addEventListener) {
         document.addEventListener('fullscreenchange', exitHandler, false);
         document.addEventListener('mozfullscreenchange', exitHandler, false);
         document.addEventListener('MSFullscreenChange', exitHandler, false);
@@ -38,10 +35,8 @@ $(() => {
     }
 
     //poskrbi, da se okno ob izhodu iz fullscreen spet zmanjša (da ni 100% visine)
-    function exitHandler()
-    {
-        if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement)
-        {
+    function exitHandler() {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreen && !document.msFullscreenElement) {
             console.log("exited fs");
             let editor = document.querySelector("div.editor_atto");
             let editor_content_wrap = document.querySelector("div.editor_atto_content_wrap");
@@ -50,12 +45,11 @@ $(() => {
             let row = document.querySelector("div#fitem_id_introeditor");
 
             row.style.height = '400px';
-            editor.style.height = 'calc(400px - '+toolbarHeight+'px)';
+            editor.style.height = 'calc(400px - ' + toolbarHeight + 'px)';
             editor_content_wrap.style.height = '100%';
             editor_input.style.height = '100%';
         }
     }
-
 
     //ustvari se gumb za full width
     let fullWidthGumb = $('<button>').attr('id', 'full_width_edit').text('Toggle full width editor');
@@ -74,23 +68,41 @@ function toggleFullScreen() {
     let editor_input = document.querySelector("div#id_introeditoreditable");
     let toolbarHeight = document.querySelector(".editor_atto_toolbar").offsetHeight;
 
-    editor.requestFullscreen();
-    editor.style.height = 'calc(100% - '+toolbarHeight+'px)';
-    editor_content_wrap.style.height = 'calc(100% - 50px)';
-    editor_input.style.height = '100%';
+    if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreen && !document.msFullscreenElement) {
+        // If not in fullscreen, enter fullscreen
+        if (editor.requestFullscreen) {
+            editor.requestFullscreen();
+        } else if (editor.mozRequestFullScreen) { /* Firefox */
+            editor.mozRequestFullScreen();
+        } else if (editor.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+            editor.webkitRequestFullscreen();
+        } else if (editor.msRequestFullscreen) { /* IE/Edge */
+            editor.msRequestFullscreen();
+        }
+
+        editor.style.height = 'calc(100% - ' + toolbarHeight + 'px)';
+        editor_content_wrap.style.height = 'calc(100% - 50px)';
+        editor_input.style.height = '100%';
+
+    } else {
+        // If already in fullscreen, exit fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) { /* Firefox */
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { /* IE/Edge */
+            document.msExitFullscreen();
+        }
+    }
 }
+
 function toggleFullWidth() {
     let sidebar = document.querySelector("div#fitem_id_introeditor").children[0];
     let editor = sidebar.nextElementSibling;
 
-    //let editorWrapper = document.querySelector("div#fitem_id_introeditor:nth-child(2)");
-    //let editor_content_wrap = document.querySelector("div.editor_atto_content_wrap");
-    //let editor_input = document.querySelector("div#id_introeditoreditable");
-
     sidebar.style.setProperty('display', 'none', 'important');
-    //editorWrapper.style.width = '100%';
-    //editor_content_wrap.style.width = '100%';
-    //editor_input.style.width = '100%';
     editor.style.width = '100%';
     editor.style.maxWidth = '100%';
     editor.style.display = 'block';
